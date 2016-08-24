@@ -22,7 +22,7 @@ Plugin.CheckConfigTypes = true
 Plugin.DefaultConfig = {
 	Mods =
 	{
-		706d242 = true
+		
 	}
 }
 
