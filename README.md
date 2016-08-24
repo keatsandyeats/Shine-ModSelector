@@ -2,7 +2,7 @@
 A [Shine](https://github.com/Person8880/Shine) plugin for Natural Selection 2.  
 Mod Selector allows you to enable and disable mods from in-game. It adds two console commands, `sh_enablemods` and `sh_disablemods`.  
 
-Its Steam Workshop ID is [forthcoming](https://steamcommunity.com/workshop/browse/?appid=4920).  
+Its Steam Workshop ID is [2cbea77a](https://steamcommunity.com/sharedfiles/filedetails/?id=750692218).  
 
 Its GitHub repo is [here](https://github.com/keatsandyeats/Shine-ModSelector). Issues and pull requests are welcome.  
 
@@ -23,7 +23,7 @@ If the file does not exist, a default one is created that looks like this:
 {
     "Mods":
     {
-        "706d242":true
+        
     }
 }  
 ````
