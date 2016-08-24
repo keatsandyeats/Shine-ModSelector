@@ -1,2 +1,31 @@
-# Shine-ModSelector
-Enable or disable Natural Selection 2 mods in-game
+## [Shine] Mod Selector
+A [Shine](https://github.com/Person8880/Shine) plugin for Natural Selection 2.  
+Mod Selector allows you to enable and disable mods from in-game. It adds two console commands, `sh_enablemods` and `sh_disablemods`.  
+
+Its Steam Workshop ID is [forthcoming](https://steamcommunity.com/workshop/browse/?appid=4920).  
+
+Its GitHub repo is [here](https://github.com/keatsandyeats/Shine-ModSelector). Issues and pull requests are welcome.  
+
+## Usage
+`sh_enablemods` adds mods to the server's MapCycle. You can give it any number of hexadecimal mod IDs separated by non-hex characters (e.g. g, -, space). Case does not matter.
+For example, `sh_enablemods abc123 123abc` will add two mod entries to MapCycle.json, `"abc123"` and `"123abc"`. 
+
+`sh_disablemods` removes mods from the server's MapCycle. You can give it any number of hexadecimal mod IDs separated by non-hex characters (e.g. g, -, space). Case does not matter.
+For example, `sh_disablemods abc123 123abc` will remove those two mod entries from MapCycle.json.  
+
+**Note that changes to MapCycle.json will not be reflected on the server until the map has changed twice.** This is because NS2 caches the MapCycle on the server.  
+
+
+## Configuration file
+The plugin looks for its config file at `config://shine//plugins//ModSelector.json`, or wherever you told Shine to place its plugins.  
+If the file does not exist, a default one is created that looks like this:  
+    {
+        "Mods":
+        {
+            "706d242":true
+        }
+    }  
+
+## Future plans  
+The new commands will eventually be hooked up to Shine's GUI admin menu.  
+Currently the config file is rather useless; hopefully soon it will have a list of mod IDs and descriptions to populate the GUI menu.

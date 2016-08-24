@@ -5,8 +5,6 @@
 	The config will pull mods from MapCycle.json or mods can be manually added to the config.
 	The config list is just so shine's gui has something to pull from.
 	Manually editing true/false will be overwritten at plugin load when it reads from MapCycle.json.
-	MapCycle.json
-	A Shine command will take a mod hex and boolean and add those to the config.
 	TODO: The command will be hooked up to Shine's admin menu.
 	TODO: Possibly change Config.Mod values to string modnames instead of bools
 --]]
@@ -24,7 +22,7 @@ Plugin.CheckConfigTypes = true
 Plugin.DefaultConfig = {
 	Mods =
 	{
-		706d242 = "Shine Administration"
+		706d242 = true
 	}
 }
 
@@ -46,10 +44,11 @@ function Plugin:Initialise()
 	return true
 end
 
---make sh_ commands for shine
+--[[
+	make sh_ commands for shine
+--]]
 function Plugin:CreateCommands()
 
-	--don't know how to get shine commands to accept variable arguments so 1 string -> unpacked array
 	local function EnableMods(client, modString)
 		modArray = ExplodeHex(modString)
 		
@@ -74,7 +73,6 @@ function Plugin:CreateCommands()
 		take a string of hexadecimals delimited by non-hex chars and put them all
 		in an array
 	--]]
-	--local?
 	function ExplodeHex(hexString)
 		local hexArray = {}
 	
@@ -86,8 +84,10 @@ function Plugin:CreateCommands()
 	end
 end
 
---Enables or disables a list of mods.
---TODO: maybe change boolean value to string (mod name for GUI). figure out how to do that with only one mapcycle.json write
+--[[
+	Enables or disables a list of mods.
+	TODO: maybe change boolean value to string (mod name for GUI). figure out how to do that with only one mapcycle.json write
+--]]
 function Plugin:ChangeMods(enabled, ...)
 	local arg = {...}
 	local changed --are any mods actually changing state?
@@ -115,7 +115,9 @@ function Plugin:ChangeMods(enabled, ...)
 	end
 end
 
---Write enabled mods to the mapcycle. Remove disabled mods from the mapcycle.
+--[[
+	Write enabled mods to the mapcycle. Remove disabled mods from the mapcycle.
+--]]
 function Plugin:ConfigToMapCycle()
 	local changed --will the mapcycle be changed?
 	
@@ -124,12 +126,9 @@ function Plugin:ConfigToMapCycle()
 			if not enabled then
 				--remove mod from mapcycle
 				
-				--note: a mapCycleIndex can be gotten from table.HasValue, but that wouldn't handle dupes
 				for mapCycleIndex,mapCycleMod in ipairs(self.MapCycle["mods"]) do
 					if mapCycleMod == configMod then
 						table.remove(self.MapCycle["mods"], mapCycleIndex)
-						
-						--TODO: comment-out mod in mapcycle instead?
 						
 						changed = true
 					end
@@ -146,9 +145,11 @@ function Plugin:ConfigToMapCycle()
 	SaveConfigFile(self.MapCycleFileName, self.MapCycle) --write to MapCycle.json
 end
 
---TODO: Import mods from the mapcycle to the Config file. 
---Imported mods are enabled. Existing mods in Config are disabled.
---TODO: handle commented mods?
+--[[
+	Import mods from the mapcycle to the Config file. 
+	Imported mods are enabled. Existing mods in Config are disabled.
+	TODO: handle commented mods?
+--]]
 function Plugin:MapCycleToConfig()
 
 	--disable all mods in config
@@ -160,18 +161,20 @@ function Plugin:MapCycleToConfig()
 	for _,mapCycleMod in ipairs(self.MapCycle["mods"]) do
 		self.Config.Mods[mapCycleMod] = true
 	end
-	
-	--self:SaveConfig() --write to config file?
 end
 
---keeps mods consistently named for comparability
---TODO: check for alpha-num, utf8, add error handling
+--[[
+	keeps mods consistently named for comparability
+	TODO: check for alpha-num, utf8, add error handling
+--]]
 function SanitizeMod(modName)
 	return string.lower(tostring(modName))
 end
 
---cleans up the mapcycle so that we can read it properly
---TODO: remove dupes?
+--[[
+	cleans up the mapcycle so that we can read it properly
+	TODO: remove dupes?
+--]]
 function Plugin:SanitizeMapCycle()
 
 	--if MapCycle doesn't have a mod section then make an empty one
@@ -182,13 +185,13 @@ function Plugin:SanitizeMapCycle()
 	for i,modName in ipairs(self.MapCycle["mods"]) do
 		self.MapCycle["mods"][i] = SanitizeMod(modName)
 	end
-	
-	--SaveConfigFile(self.MapCycleFileName, self.MapCycle) --write to mapcycle.json?
 end
 
---cleans up the Config file in case the user edited it badly
---TODO: make this more robust
---shine already checks for missing entries and types
+--[[
+	cleans up the Config file in case the user edited it badly
+	TODO: make this more robust
+	shine already checks for missing entries and types
+--]]
 function Plugin:SanitizeConfig()
 	local cleanModName
 	
@@ -199,8 +202,6 @@ function Plugin:SanitizeConfig()
 		self.Config.Mods[modName] = nil --remove the dirty mod
 		self.Config.Mods[cleanModName] = enabled --add the sanitized mod
 	end
-	
-	--self:SaveConfig() --write to config file. necessary?
 end
 
 Shine:RegisterExtension("modselector", Plugin)
