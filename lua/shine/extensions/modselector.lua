@@ -49,6 +49,7 @@ end
 --]]
 function Plugin:CreateCommands()
 
+	--don't know how to get shine commands to accept variable arguments so 1 string -> unpacked array
 	local function EnableMods(client, modString)
 		modArray = ExplodeHex(modString)
 		
@@ -73,6 +74,7 @@ function Plugin:CreateCommands()
 		take a string of hexadecimals delimited by non-hex chars and put them all
 		in an array
 	--]]
+	--local?
 	function ExplodeHex(hexString)
 		local hexArray = {}
 	
@@ -126,9 +128,12 @@ function Plugin:ConfigToMapCycle()
 			if not enabled then
 				--remove mod from mapcycle
 				
+				--note: a mapCycleIndex can be gotten from table.HasValue, but that wouldn't handle dupes
 				for mapCycleIndex,mapCycleMod in ipairs(self.MapCycle["mods"]) do
 					if mapCycleMod == configMod then
 						table.remove(self.MapCycle["mods"], mapCycleIndex)
+						
+						--TODO: comment-out mod in mapcycle instead?
 						
 						changed = true
 					end
@@ -161,6 +166,8 @@ function Plugin:MapCycleToConfig()
 	for _,mapCycleMod in ipairs(self.MapCycle["mods"]) do
 		self.Config.Mods[mapCycleMod] = true
 	end
+	
+	--self:SaveConfig() --write to config file?
 end
 
 --[[
@@ -185,6 +192,8 @@ function Plugin:SanitizeMapCycle()
 	for i,modName in ipairs(self.MapCycle["mods"]) do
 		self.MapCycle["mods"][i] = SanitizeMod(modName)
 	end
+	
+	--SaveConfigFile(self.MapCycleFileName, self.MapCycle) --write to mapcycle.json?
 end
 
 --[[
@@ -202,6 +211,8 @@ function Plugin:SanitizeConfig()
 		self.Config.Mods[modName] = nil --remove the dirty mod
 		self.Config.Mods[cleanModName] = enabled --add the sanitized mod
 	end
+	
+	--self:SaveConfig() --write to config file. necessary?
 end
 
 Shine:RegisterExtension("modselector", Plugin)
