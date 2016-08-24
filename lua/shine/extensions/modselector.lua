@@ -147,6 +147,7 @@ function Plugin:ConfigToMapCycle()
 		end
 	end
 	
+	--TODO: vanilla's dkjson formatting sucks. copy shine's lua->json write somehow
 	SaveConfigFile(self.MapCycleFileName, self.MapCycle) --write to MapCycle.json
 end
 
@@ -154,6 +155,7 @@ end
 	Import mods from the mapcycle to the Config file. 
 	Imported mods are enabled. Existing mods in Config are disabled.
 	TODO: handle commented mods?
+	TODO: save comments somehow? (maybe impossible)
 --]]
 function Plugin:MapCycleToConfig()
 
