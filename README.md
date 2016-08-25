@@ -21,13 +21,15 @@ The plugin looks for its config file at `config://shine/plugins/ModSelector.json
 If the file does not exist, a default one is created that looks like this:  
 ````    
 {
-    "Mods":
-    {
-        
-    }
+    "exampleHex" = {
+		"displayname" = "human-readable name",
+		"enabled" = false
+	}
 }  
 ````
 
 ## Future plans  
-The new commands will eventually be hooked up to Shine's GUI admin menu.  
-Currently the config file is rather useless; hopefully soon it will have a list of mod IDs and descriptions to populate the GUI menu.
+Use Shine's GUI to give you a selectable list of mods with human-readable names 
+
+## Distant future plans
+Currently I use vanilla NS2's config writing system to edit MapCycle.json. This makes your new MapCycle rather condensed and squashed. Eventually I hope to enhance this with pretty whitespace and newlines.
