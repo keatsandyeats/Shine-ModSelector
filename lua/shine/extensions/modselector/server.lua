@@ -49,7 +49,6 @@ end
 --]]
 function Plugin:CreateCommands()
 
-	--don't know how to get shine commands to accept variable arguments so 1 string -> unpacked array
 	local function EnableMods(client, modString)
 		modArray = ExplodeHex(modString)
 		
@@ -74,7 +73,6 @@ function Plugin:CreateCommands()
 		take a string of hexadecimals delimited by non-hex chars and put them all
 		in an array
 	--]]
-	--local?
 	function ExplodeHex(hexString)
 		local hexArray = {}
 	
@@ -124,6 +122,7 @@ end
 
 --[[
 	Write enabled mods to the mapcycle. Remove disabled mods from the mapcycle.
+	TODO: Format final MapCycle.json better (use Shine instead of dkson?)
 --]]
 function Plugin:ConfigToMapCycle()
 	local changed --will the mapcycle be changed?
@@ -141,8 +140,6 @@ function Plugin:ConfigToMapCycle()
 				for i=#self.MapCycle["mods"],1,-1 do
 					if self.MapCycle["mods"][i] == configMod then
 						table.remove(self.MapCycle["mods"], i)
-						
-						--TODO: comment-out mod in mapcycle instead?
 						
 						changed = true
 					end					
@@ -180,7 +177,8 @@ function Plugin:MapCycleToConfig()
 		end
 	end
 	
-	--self:SaveConfig() --write to config file?
+	--for debugging only
+	--self:SaveConfig()
 end
 
 --[[
@@ -205,13 +203,13 @@ function Plugin:SanitizeMapCycle()
 		self.MapCycle["mods"][i] = SanitizeMod(modName)
 	end
 	
-	--SaveConfigFile(self.MapCycleFileName, self.MapCycle) --write to mapcycle.json?
+	--for debugging only
+	--SaveConfigFile(self.MapCycleFileName, self.MapCycle)
 end
 
 --[[
 	cleans up the Config file in case the user edited it badly
 	TODO: make this more robust
-	shine already checks for missing entries and types??
 --]]
 function Plugin:SanitizeConfig()
 	local cleanModName
@@ -224,5 +222,6 @@ function Plugin:SanitizeConfig()
 		self.Config[cleanModName] = modData --add the sanitized mod
 	end
 	
-	--self:SaveConfig() --write to config file. necessary?
+	--for debugging only
+	--self:SaveConfig()
 end
