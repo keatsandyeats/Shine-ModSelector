@@ -17,7 +17,7 @@ For example, `sh_disablemods abc123 123abc` will remove those two mod entries fr
 
 
 ## Configuration file
-The plugin looks for its config file at `config://shine//plugins//ModSelector.json`, or wherever you told Shine to place its plugins.  
+The plugin looks for its config file at `config://shine/plugins/ModSelector.json`, or wherever you told Shine to place its plugins.  
 If the file does not exist, a default one is created that looks like this:  
 ````    
 {
