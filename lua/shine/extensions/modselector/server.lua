@@ -6,6 +6,7 @@
 	The config list is just so shine's gui has something to pull from.
 	Manually editing true/false will be overwritten at plugin load when it reads from MapCycle.json.
 	TODO: The command will be hooked up to Shine's admin menu.
+	TODO: remove boolean from config as it's useless for the end user
 --]]
 
 local Shine = Shine

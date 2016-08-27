@@ -29,7 +29,8 @@ If the file does not exist, a default one is created that looks like this:
 ````
 
 ## Future plans  
-Use Shine's GUI to give you a selectable list of mods with human-readable names 
+Use Shine's GUI to give you a selectable list of mods with human-readable names.  
+Remove "enabled" from the config as it is not actually changeable by the user. 
 
 ## Distant future plans
 Currently I use vanilla NS2's config writing system to edit MapCycle.json. This makes your new MapCycle rather condensed and squashed. Eventually I hope to enhance this with pretty whitespace and newlines.
