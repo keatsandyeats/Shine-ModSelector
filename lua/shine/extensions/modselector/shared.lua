@@ -1,15 +1,21 @@
 --[[
+	[Shine] ModSelector by Keats & Yeats.
 	A Shine plugin to enable and disable server mods in-game.
+	Please see https://github.com/keatsandyeats/Shine-ModSelector for more information.
 --]]
-	-- The config will have a list of mod hexes, each with a string and a boolean attribute.
-	-- The config will pull mods from MapCycle.json or mods can be manually added to the config.
-	-- The config list is just so shine's gui has something to pull from.
-	-- Manually editing true/false will be overwritten at plugin load when it reads from MapCycle.json.
-	-- TODO: The command will be hooked up to Shine's admin menu.
-	-- TODO: remove boolean from config as it's useless for the end user
 
 
 local Shine = Shine
 local Plugin = {}
+
+function Plugin:SetupDataTable()
+	self:AddNetworkMessage("RequestModData", {}, "Server")
+	self:AddNetworkMessage("ModData", {
+		HexID = "string (32)", 
+		DisplayName = "string(32)", 
+		Enabled = "boolean",
+		}, "Client")
+	
+end
 
 Shine:RegisterExtension("modselector", Plugin)

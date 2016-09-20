@@ -1,17 +1,13 @@
 --[[
+	[Shine] ModSelector by Keats & Yeats.
 	A Shine plugin to enable and disable server mods in-game.
+	Please see https://github.com/keatsandyeats/Shine-ModSelector for more information.
 --]]
-	-- The config will have a list of mod hexes, each with a string and a boolean attribute.
-	-- The config will pull mods from MapCycle.json or mods can be manually added to the config.
-	-- The config list is just so shine's gui has something to pull from.
-	-- Manually editing true/false will be overwritten at plugin load when it reads from MapCycle.json.
-	-- TODO: The command will be hooked up to Shine's admin menu.
-	-- TODO: remove boolean from config as it's useless for the end user
 
 local Shine = Shine
 local Plugin = Plugin
 
-Plugin.Version = "0.5"
+Plugin.Version = "1.0"
 
 Plugin.HasConfig = true
 Plugin.ConfigName = "ModSelector.json"
@@ -35,13 +31,36 @@ function Plugin:Initialise()
 	
 	self:SanitizeMapCycle()
 	
-	self:MapCycleToConfig() --add mods from the mapcycle to the config
+	self:MapCycleToConfig() --add mods from the mapcycle to the internal config
+	self:SaveConfig() --make sure we write to the config at least once
 	
 	self:CreateCommands()
 	
 	self.Enabled = true
 	
 	return true
+end
+
+--[[
+	handle the network message from the client that requests mod data
+--]]
+function Plugin:ReceiveRequestModData(Client, Data)
+	if not (Shine:GetPermission(Client, "sh_enablemods") or Shine:GetPermission(Client, "sh_disablemods")) then
+		return --if the client doesn't have access to the right commands then ignore his request
+	end
+	
+	for modID, modData in pairs(self.Config) do
+		local enabled = modData.enabled
+		local displayname = modData.displayname
+		
+		if modID ~= "examplehex" then -- don't send the nonsense default entry
+			self:SendNetworkMessage(Client, "ModData", {
+				HexID = modID, 
+				DisplayName = displayname, 
+				Enabled = enabled,
+				}, true)
+		end
+	end
 end
 
 --[[
@@ -122,7 +141,6 @@ end
 
 --[[
 	Write enabled mods to the mapcycle. Remove disabled mods from the mapcycle.
-	TODO: Format final MapCycle.json better (use Shine instead of dkson?)
 --]]
 function Plugin:ConfigToMapCycle()
 	local changed --will the mapcycle be changed?
@@ -159,7 +177,6 @@ end
 --[[
 	Import mods from the mapcycle to the Config file. 
 	Imported mods are enabled. Existing mods in Config are disabled.
-	TODO: handle commented mods?
 --]]
 function Plugin:MapCycleToConfig()
 
@@ -176,14 +193,11 @@ function Plugin:MapCycleToConfig()
 			self.Config[mapCycleMod] = {["displayname"] = "unknown", ["enabled"] = true}
 		end
 	end
-	
-	--for debugging only
-	--self:SaveConfig()
 end
 
 --[[
 	keeps mods consistently named for comparability
-	TODO: check for alpha-num, utf8, add error handling
+	input handling is not required as NS2 will gracefully ignore hex IDs that aren't mods
 --]]
 function SanitizeMod(modName)
 	return string.lower(tostring(modName))
@@ -202,9 +216,6 @@ function Plugin:SanitizeMapCycle()
 	for i,modName in ipairs(self.MapCycle["mods"]) do
 		self.MapCycle["mods"][i] = SanitizeMod(modName)
 	end
-	
-	--for debugging only
-	--SaveConfigFile(self.MapCycleFileName, self.MapCycle)
 end
 
 --[[
@@ -221,7 +232,4 @@ function Plugin:SanitizeConfig()
 		self.Config[modName] = nil --remove the dirty mod
 		self.Config[cleanModName] = modData --add the sanitized mod
 	end
-	
-	--for debugging only
-	--self:SaveConfig()
 end
