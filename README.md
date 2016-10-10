@@ -42,7 +42,6 @@ Each mod entry must have the "enabled" parameter, but its boolean value is for i
 If you have added at least one other mod to the config, you may safely delete the "exampleHex" entry. Or you can simply leave it in the config; it will not appear in the Admin Menu.  
 
 ## Known Issues  
-The new "Mods" tab will not populate the first time you click it. You must click the "Mods" tab, then click a different tab, then click the "Mods" tab again.
 
 ## Future plans  
 Disallow remote users from adding arbitrary mods to the server. Only allow mods in the config to be added to the mapcycle.  
