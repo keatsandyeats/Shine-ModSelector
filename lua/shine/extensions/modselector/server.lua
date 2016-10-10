@@ -7,7 +7,7 @@
 local Shine = Shine
 local Plugin = Plugin
 
-Plugin.Version = "1.0"
+Plugin.Version = "1.1"
 
 Plugin.HasConfig = true
 Plugin.ConfigName = "ModSelector.json"
