@@ -10,6 +10,8 @@ local SGUI = Shine.GUI
 
 Plugin.HasConfig = false
 
+Plugin.ModsReceived = false --has the server sent us a mod yet?
+
 function Plugin:Initialise()
 	self:SetupAdminMenuCommands()
 	
@@ -35,7 +37,12 @@ function Plugin:SetupAdminMenuCommands()
 			
 			self:RequestModData()
 			
-			self:PopulateModList()
+			if not self.ModsReceived then
+				--delay populating the list to give network messages time to arrive
+				self:CreateTimer("ModsListUpdate", 0.5, 1, function()
+					self:PopulateModList()
+				end)
+			else self:PopulateModList() end
 			
 			--sort list by Enabled
 			List:SortRows(2, nil, true)
@@ -107,6 +114,10 @@ function Plugin:SetupAdminMenuCommands()
 				
 				Shine.AdminMenu:RunCommand("sh_enablemods", Mod)
 			end
+		end,
+		
+		OnCleanup = function(Panel)
+			self:DestroyTimer("ModsListUpdate")
 		end
 	}
 	
@@ -126,6 +137,8 @@ end
 function Plugin:ReceiveModData(Data)
 	self.ModData = self.ModData or {}
 	self.ModData[Data.HexID] = {displayname = Data.DisplayName, enabled = Data.Enabled}
+	
+	self.ModsReceived = true
 end
 
 --[[

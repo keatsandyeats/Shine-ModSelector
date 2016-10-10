@@ -12,7 +12,7 @@ function Plugin:SetupDataTable()
 	self:AddNetworkMessage("RequestModData", {}, "Server")
 	self:AddNetworkMessage("ModData", {
 		HexID = "string (32)", 
-		DisplayName = "string(32)", 
+		DisplayName = "string (32)", 
 		Enabled = "boolean",
 		}, "Client")
 	

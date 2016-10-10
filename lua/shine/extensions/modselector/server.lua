@@ -171,7 +171,9 @@ function Plugin:ConfigToMapCycle()
 		end
 	end
 	
-	SaveConfigFile(self.MapCycleFileName, self.MapCycle) --write to MapCycle.json
+	if changed then
+		SaveConfigFile(self.MapCycleFileName, self.MapCycle) --write to MapCycle.json
+	end
 end
 
 --[[
