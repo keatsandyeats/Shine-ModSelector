@@ -20,7 +20,6 @@ function Plugin:Initialise()
 	return true
 end
 
--- TODO: new tab doesn't populate the first time you select it, only after you select away and back.
 function Plugin:SetupAdminMenuCommands()
 	ModTabData = {
 		OnInit = function(Panel, Data)
