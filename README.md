@@ -15,7 +15,7 @@ For example, `sh_enablemods aBc123 123ABC` will add two mod entries to MapCycle.
 `sh_disablemods` removes mods from the server's MapCycle. You can give it any number of hexadecimal mod IDs separated by non-hex characters (e.g. g, -, space). Case does not matter.
 For example, `sh_disablemods AbC123 123abc` will remove those two mod entries from MapCycle.json.  
 
-Users with access to either command above will have access to the new "Mods" tab of Shine's graphical Admin Menu.
+Users with access to `sh_adminmenu` and either command above will have access to the new "Mods" tab of Shine's graphical Admin Menu.
 Users with access to `sh_enablemods`, but not `sh_disablemods`, will be able to enable mods but not disable them. Users with access to `sh_disablemods`, but not `sh_enablemods`, will be able to disable mods but not enable them.  
 See the section *Configuration file* to learn how to populate this menu with mod names.    
 
@@ -45,3 +45,4 @@ If you have added at least one other mod to the config, you may safely delete th
 
 ## Future plans  
 Remove "enabled" from the config as it is not actually changeable by the user.  
+Automatically retrieve mod names from Steam Workshop.  
