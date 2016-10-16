@@ -33,7 +33,7 @@ If the file does not exist, a default one is created that looks like this:
 	}
 }  
 ````  
-Mods that are already in MapCycle.json will be imported to the config each time the plugin loads. Their display names will be "unknown" until you edit their config entries. This display name will be shown in the Admin Menu (the hex ID will not).  
+Mods that are already in MapCycle.json will be imported to the config each time the plugin loads. Their display names will be their hex IDs until you edit their config entries. This display name will be shown in the Admin Menu (the hex ID will not).  
 
 To add a new mod to the Admin Menu, replace "exampleHex" with a hexadecimal Workshop ID (e.g. "2cbea77a"). Replace "human-readable name" with a unique, identifiable string (e.g. "Shine ModSelector").  
 

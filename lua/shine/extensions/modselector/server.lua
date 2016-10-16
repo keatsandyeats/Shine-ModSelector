@@ -194,7 +194,7 @@ function Plugin:MapCycleToConfig()
 		if self.Config[mapCycleMod] then
 			self.Config[mapCycleMod]["enabled"] = true
 		else
-			self.Config[mapCycleMod] = {["displayname"] = "unknown", ["enabled"] = true}
+			self.Config[mapCycleMod] = {["displayname"] = mapCycleMod, ["enabled"] = true}
 		end
 	end
 end
