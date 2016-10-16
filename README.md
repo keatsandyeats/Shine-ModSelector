@@ -44,5 +44,4 @@ If you have added at least one other mod to the config, you may safely delete th
 ## Known Issues  
 
 ## Future plans  
-Disallow remote users from adding arbitrary mods to the server. Only allow mods in the config to be added to the mapcycle.  
 Remove "enabled" from the config as it is not actually changeable by the user.  
