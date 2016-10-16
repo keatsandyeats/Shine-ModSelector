@@ -71,7 +71,7 @@ function Plugin:CreateCommands()
 	local function EnableMods(client, modString)
 		modArray = ExplodeHex(modString)
 		
-		self:ChangeMods(true, unpack(modArray))
+		self:ChangeMods(client, true, unpack(modArray))
 	end
 	
 	local EnableModsCommand = self:BindCommand("sh_enablemods", "enablemods", EnableMods, false, true)
@@ -81,7 +81,7 @@ function Plugin:CreateCommands()
 	local function DisableMods(client, modString)
 		modArray = ExplodeHex(modString)
 		
-		self:ChangeMods(false, unpack(modArray))
+		self:ChangeMods(client, false, unpack(modArray))
 	end
 	
 	local DisableModsCommand = self:BindCommand("sh_disablemods", "disablemods", DisableMods, false, true)
@@ -106,7 +106,7 @@ end
 --[[
 	Enables or disables a list of mods.
 --]]
-function Plugin:ChangeMods(enabled, ...)
+function Plugin:ChangeMods(Client, enabled, ...)
 	local arg = {...}
 	local changed --are any mods actually changing state?
 	
@@ -125,10 +125,12 @@ function Plugin:ChangeMods(enabled, ...)
 			
 				changed = true
 			end
-		else --if there wasn't an entry for this mod, make it now
-			self.Config[newMod] = {["displayname"] = "unknown", ["enabled"] = enabled}
-		
-			changed = true
+		else --if the mod is not in the Config, ignore it
+			local enabledString = enabled and "enabled" or "disabled"
+			local whitelistMessage = string.format("Mod %s is not whitelisted. It has not been %s.", 
+				newMod, enabledString)
+			
+			Shine.PrintToConsole(Client, whitelistMessage)
 		end
 	end
 	
