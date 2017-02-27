@@ -27,9 +27,11 @@ The plugin looks for its config file at `config://shine/plugins/ModSelector.json
 If the file does not exist, a default one is created that looks like this:  
 ````    
 {
-    "exampleHex" = {
-		"displayname" = "human-readable name",
-		"enabled" = false
+	"Mods":{
+		"exampleHex":{
+			"displayname":"human-readable name",
+			"enabled":false
+		}
 	}
 }  
 ````  

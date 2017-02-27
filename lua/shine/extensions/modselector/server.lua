@@ -7,7 +7,7 @@
 local Shine = Shine
 local Plugin = Plugin
 
-Plugin.Version = "1.2"
+Plugin.Version = "1.3"
 
 Plugin.HasConfig = true
 Plugin.ConfigName = "ModSelector.json"
@@ -16,9 +16,28 @@ Plugin.CheckConfig = false
 Plugin.CheckConfigTypes = false
 
 Plugin.DefaultConfig = {
-	exampleHex = {
-		displayname = "human-readable name",
-		enabled = false
+	Mods = {
+		exampleHex = {
+			displayname = "human-readable name",
+			enabled = false
+		}
+	}
+}
+
+Plugin.ConfigMigrationSteps = {
+	{
+		-- version 1.3 moved the mod list from the top level of the config to a "Mods" table
+		VersionTo = "1.3",
+		Apply = function(Config)
+			Config.Mods = Config.Mods or {}
+			
+			for modID,modData in pairs(Config) do
+				if modID ~= "__Version" and modID ~= "Mods" then
+					Config.Mods[modID] = Config.Mods[modID] or modData
+					Config[modID] = nil
+				end
+			end
+		end
 	}
 }
 
@@ -49,16 +68,15 @@ function Plugin:ReceiveRequestModData(Client, Data)
 		return --if the client doesn't have access to the right commands then ignore his request
 	end
 	
-	for modID, modData in pairs(self.Config) do
-		local enabled = modData.enabled
-		local displayname = modData.displayname
-		
-		if modID ~= "examplehex" then -- don't send the nonsense default entry
-			self:SendNetworkMessage(Client, "ModData", {
-				HexID = modID, 
-				DisplayName = displayname, 
-				Enabled = enabled,
-				}, true)
+	for modID, modData in pairs(self.Config.Mods) do
+		if modID ~= "examplehex" then -- don't send the example entry
+			local enabled = modData.enabled
+			local displayname = modData.displayname
+				self:SendNetworkMessage(Client, "ModData", {
+					HexID = modID, 
+					DisplayName = displayname, 
+					Enabled = enabled,
+					}, true)
 		end
 	end
 end
@@ -119,9 +137,9 @@ function Plugin:ChangeMods(Client, enabled, ...)
 	for _,newMod in ipairs(arg) do
 		newMod = SanitizeMod(newMod)
 
-		if self.Config[newMod] then --check if entry exists
-			if self.Config[newMod]["enabled"] ~= enabled then
-				self.Config[newMod]["enabled"] = enabled
+		if self.Config.Mods[newMod] then --check if entry exists
+			if self.Config.Mods[newMod]["enabled"] ~= enabled then
+				self.Config.Mods[newMod]["enabled"] = enabled
 			
 				changed = true
 			end
@@ -147,7 +165,7 @@ end
 function Plugin:ConfigToMapCycle()
 	local changed --will the mapcycle be changed?
 	
-	for configMod,configModData in pairs(self.Config) do
+	for configMod,configModData in pairs(self.Config.Mods) do
 		
 		local enabled = configModData["enabled"]
 		
@@ -185,16 +203,16 @@ end
 function Plugin:MapCycleToConfig()
 
 	--disable all mods in config
-	for _,configModData in pairs(self.Config) do
+	for _,configModData in pairs(self.Config.Mods) do
 		configModData["enabled"] = false
 	end
 	
 	--enable mods from mapcycle
 	for _,mapCycleMod in ipairs(self.MapCycle["mods"]) do
-		if self.Config[mapCycleMod] then
-			self.Config[mapCycleMod]["enabled"] = true
+		if self.Config.Mods[mapCycleMod] then
+			self.Config.Mods[mapCycleMod]["enabled"] = true
 		else
-			self.Config[mapCycleMod] = {["displayname"] = mapCycleMod, ["enabled"] = true}
+			self.Config.Mods[mapCycleMod] = {["displayname"] = mapCycleMod, ["enabled"] = true}
 		end
 	end
 end
@@ -229,11 +247,11 @@ end
 function Plugin:SanitizeConfig()
 	local cleanModName
 	
-	for modName,modData in pairs(self.Config) do
+	for modName,modData in pairs(self.Config.Mods) do
 		cleanModName = SanitizeMod(modName)
 		
 		--order is important in case mod is already clean
-		self.Config[modName] = nil --remove the dirty mod
-		self.Config[cleanModName] = modData --add the sanitized mod
+		self.Config.Mods[modName] = nil --remove the dirty mod
+		self.Config.Mods[cleanModName] = modData --add the sanitized mod
 	end
 end
