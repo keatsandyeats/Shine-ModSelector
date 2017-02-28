@@ -250,6 +250,10 @@ function Plugin:SanitizeConfig()
 	for modName,modData in pairs(self.Config.Mods) do
 		cleanModName = SanitizeMod(modName)
 		
+		--make the entries we want if they don't exist
+		modData.displayname = modData.displayname or modName
+		modData.enabled = modData.enabled or false
+		
 		--order is important in case mod is already clean
 		self.Config.Mods[modName] = nil --remove the dirty mod
 		self.Config.Mods[cleanModName] = modData --add the sanitized mod
