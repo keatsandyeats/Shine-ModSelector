@@ -60,6 +60,16 @@ function Plugin:Initialise()
     return true
 end
 
+local function GetActiveModIDs()
+    local modList = {}
+
+    for i = 1, Server.GetNumActiveMods() do
+        modList[i] = Server.GetActiveModId(i)
+    end
+
+    return modList
+end
+
 --[[
     handle the network message from the client that requests mod data
 --]]
@@ -68,15 +78,29 @@ function Plugin:ReceiveRequestModData(Client, Data)
         return --if the client doesn't have access to the right commands then ignore his request
     end
 
+    local modList = GetActiveModIDs()
+
     for modID, modData in pairs(self.Config.Mods) do
         if modID ~= "examplehex" then -- don't send the example entry
             local enabled = modData.enabled
             local displayname = modData.displayname
-                self:SendNetworkMessage(Client, "ModData", {
-                    HexID = modID,
-                    DisplayName = displayname,
-                    Enabled = enabled,
-                    }, true)
+            local active = false
+
+            -- check if a mod is currently active on the server
+            for i, activeMod in ipairs(modList) do
+                if modID == activeMod then
+                    active = true
+
+                    break
+                end
+            end
+
+            self:SendNetworkMessage(Client, "ModData", {
+                HexID = modID,
+                DisplayName = displayname,
+                isEnabled = enabled,
+                isActive = active,
+                }, true)
         end
     end
 end

@@ -26,7 +26,7 @@ function Plugin:SetupAdminMenuCommands()
             local List = SGUI:Create("List", Panel)
             List:SetAnchor(GUIItem.Left, GUIItem.Top)
             List:SetPos(Vector(16, 28, 0))
-            List:SetColumns("Mod", "State")
+            List:SetColumns("Mod", "Config (Server)")
             List:SetSpacing(0.7, 0.3)
             List:SetSize(Vector(640, 512, 0))
             List.ScrollPos = Vector(0, 32, 0)
@@ -48,12 +48,12 @@ function Plugin:SetupAdminMenuCommands()
 
             local ButtonSize = Vector(128, 32, 0)
 
-            --returns the hexID and state of the selected mod
+            --returns the hexID of the selected mod
             local function GetSelectedMod()
                 local Selected = List:GetSelectedRow()
                 if not Selected then return end
 
-                return Selected.HexID, Selected.ModEnabled
+                return Selected.HexID
             end
 
             local DisableMod = SGUI:Create("Button", Panel)
@@ -64,10 +64,12 @@ function Plugin:SetupAdminMenuCommands()
             DisableMod:SetFont(Fonts.kAgencyFB_Small)
 
             function DisableMod.DoClick(Button)
-                local Mod, State = GetSelectedMod()
+                local Mod = GetSelectedMod()
+                local isEnabled = self.ModData[Mod]["enabled"]
+                local isActive = self.ModData[Mod]["active"]
 
                 if not Mod then return false end --a nil mod means no selection, so do nothing
-                if not State then return false end --if mod is already disabled then do nothing
+                if not isEnabled then return false end --if mod is already disabled then do nothing
 
                 --change mod's status in the mod table
                 self.ModData[Mod]["enabled"] = false
@@ -75,8 +77,9 @@ function Plugin:SetupAdminMenuCommands()
                 --change mod's status in the list
                 for i=1,#List.Rows do --for loop is inefficient but I don't know a better way
                     if List.Rows[i]["HexID"] == Mod then
-                        List.Rows[i]["ModEnabled"] = false
-                        List.Rows[i]:SetColumnText(2, "Disabled")
+                        local newColumnText = string.format("%s (%s)", "Disabled", isActive and "Active" or "Inactive")
+
+                        List.Rows[i]:SetColumnText(2, newColumnText)
 
                         break
                     end
@@ -93,10 +96,12 @@ function Plugin:SetupAdminMenuCommands()
             EnableMod:SetFont(Fonts.kAgencyFB_Small)
 
             function EnableMod.DoClick(Button)
-                local Mod, State = GetSelectedMod()
+                local Mod = GetSelectedMod()
+                local isEnabled = self.ModData[Mod]["enabled"]
+                local isActive = self.ModData[Mod]["active"]
 
                 if not Mod then return false end --a nil mod means no selection, so do nothing
-                if State then return false end --if mod is already enabled then do nothing
+                if isEnabled then return false end --if mod is already enabled then do nothing
 
                 --change mod's status in the mod table
                 self.ModData[Mod]["enabled"] = true
@@ -104,8 +109,9 @@ function Plugin:SetupAdminMenuCommands()
                 --change mod's status in the list
                 for i=1,#List.Rows do --for loop is inefficient but I don't know a better way
                     if List.Rows[i]["HexID"] == Mod then
-                        List.Rows[i]["ModEnabled"] = true
-                        List.Rows[i]:SetColumnText(2, "Enabled")
+                        local newColumnText = string.format("%s (%s)", "Enabled", isActive and "Active" or "Inactive")
+
+                        List.Rows[i]:SetColumnText(2, newColumnText)
 
                         break
                     end
@@ -135,7 +141,11 @@ end
 --]]
 function Plugin:ReceiveModData(Data)
     self.ModData = self.ModData or {}
-    self.ModData[Data.HexID] = {displayname = Data.DisplayName, enabled = Data.Enabled}
+    self.ModData[Data.HexID] = {
+        displayname = Data.DisplayName,
+        enabled = Data.isEnabled,
+        active = Data.isActive,
+    }
 
     self.ModsReceived = true
 end
@@ -150,11 +160,14 @@ function Plugin:PopulateModList()
     if not SGUI.IsValid(List) then return end
 
     for HexID, modData in pairs(self.ModData) do
+        local enabledString = modData.enabled and "Enabled" or "Disabled"
+        local activeString = modData.active and "Active" or "Inactive"
+        local statusString = string.format("%s (%s)", enabledString, activeString)
+
         --add the row to the list display
-        local Row = List:AddRow(modData.displayname, modData.enabled and "Enabled" or "Disabled")
+        local Row = List:AddRow(modData.displayname, statusString)
 
         --add extra info for GetSelectedMod
         Row["HexID"] = HexID
-        Row["ModEnabled"] = modData.enabled
     end
 end

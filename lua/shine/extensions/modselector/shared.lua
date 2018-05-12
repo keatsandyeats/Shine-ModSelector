@@ -13,7 +13,8 @@ function Plugin:SetupDataTable()
     self:AddNetworkMessage("ModData", {
         HexID = "string (32)",
         DisplayName = "string (32)",
-        Enabled = "boolean",
+        isEnabled = "boolean",
+        isActive = "boolean",
         }, "Client")
 
 end
