@@ -135,7 +135,7 @@ function Plugin:ChangeMods(Client, enabled, ...)
     end
 
     for _,newMod in ipairs(arg) do
-        newMod = SanitizeMod(newMod)
+        newMod = self:SanitizeMod(newMod)
 
         if self.Config.Mods[newMod] then --check if entry exists
             if self.Config.Mods[newMod]["enabled"] ~= enabled then
@@ -221,7 +221,7 @@ end
     keeps mods consistently named for comparability
     input handling is not required as NS2 will gracefully ignore hex IDs that aren't mods
 --]]
-function SanitizeMod(modName)
+function Plugin:SanitizeMod(modName)
     return string.lower(tostring(modName))
 end
 
@@ -236,7 +236,7 @@ function Plugin:SanitizeMapCycle()
     end
 
     for i,modName in ipairs(self.MapCycle["mods"]) do
-        self.MapCycle["mods"][i] = SanitizeMod(modName)
+        self.MapCycle["mods"][i] = self:SanitizeMod(modName)
     end
 end
 
@@ -248,7 +248,7 @@ function Plugin:SanitizeConfig()
     local cleanModName
 
     for modName,modData in pairs(self.Config.Mods) do
-        cleanModName = SanitizeMod(modName)
+        cleanModName = self:SanitizeMod(modName)
 
         --make the entries we want if they don't exist
         modData.displayname = modData.displayname or modName
