@@ -21,32 +21,43 @@ function Plugin:Initialise()
 end
 
 function Plugin:SetupAdminMenuCommands()
+    local Units = SGUI.Layout.Units
+    local HighResScaled = Units.HighResScaled
+    local Percentage = Units.Percentage
+    local Spacing = Units.Spacing
+    local UnitVector = Units.UnitVector
+    local Auto = Units.Auto
+
     ModTabData = {
         OnInit = function(Panel, Data)
+            local Layout = SGUI.Layout:CreateLayout("Vertical", {
+                Padding = Spacing(HighResScaled(16), HighResScaled(28),
+                    HighResScaled(16), HighResScaled(16))
+            })
+
             local List = SGUI:Create("List", Panel)
-            List:SetAnchor(GUIItem.Left, GUIItem.Top)
-            List:SetPos(Vector(16, 28, 0))
             List:SetColumns("Mod", "Config (Server)")
             List:SetSpacing(0.7, 0.3)
-            List:SetSize(Vector(640, 512, 0))
-            List.ScrollPos = Vector(0, 32, 0)
             List:SetSecondarySortColumn(2,1)
+            List:SetFill(true)
+
+            Shine.AdminMenu.SetupListWithScaling(List)
+
+            Layout:AddElement(List)
 
             self.ModList = List
 
             self:RequestModData()
 
-            if not self.ModsReceived then
-                --delay populating the list to give network messages time to arrive
-                self:CreateTimer("ModsListUpdate", 0.5, 1, function()
-                    self:PopulateModList()
-                end)
-            else self:PopulateModList() end
-
             --sort list by Enabled
             List:SortRows(2, nil, true)
 
-            local ButtonSize = Vector(128, 32, 0)
+            local Font, Scale = SGUI.FontManager.GetHighResFont("kAgencyFB", 27)
+
+            local ControlLayout = SGUI.Layout:CreateLayout("Horizontal", {
+                Margin = Spacing(0, HighResScaled(16), 0, 0),
+                Fill = false
+            })
 
             --returns the hexID of the selected mod
             local function GetSelectedMod()
@@ -57,11 +68,9 @@ function Plugin:SetupAdminMenuCommands()
             end
 
             local DisableMod = SGUI:Create("Button", Panel)
-            DisableMod:SetAnchor("BottomLeft")
-            DisableMod:SetSize(ButtonSize)
-            DisableMod:SetPos(Vector(16, -48, 0))
             DisableMod:SetText("Disable Mod")
-            DisableMod:SetFont(Fonts.kAgencyFB_Small)
+            DisableMod:SetFontScale(Font, Scale)
+            DisableMod:SetEnabled(List:HasSelectedRow())
 
             function DisableMod.DoClick(Button)
                 local Mod = GetSelectedMod()
@@ -88,12 +97,13 @@ function Plugin:SetupAdminMenuCommands()
                 Shine.AdminMenu:RunCommand("sh_disablemods", Mod)
             end
 
+            ControlLayout:AddElement(DisableMod)
+
             local EnableMod = SGUI:Create("Button", Panel)
-            EnableMod:SetAnchor("BottomRight")
-            EnableMod:SetSize(ButtonSize)
-            EnableMod:SetPos(Vector(-144, -48, 0))
             EnableMod:SetText("Enable Mod")
-            EnableMod:SetFont(Fonts.kAgencyFB_Small)
+            EnableMod:SetFontScale(Font, Scale)
+            EnableMod:SetAlignment(SGUI.LayoutAlignment.MAX)
+            EnableMod:SetEnabled(List:HasSelectedRow())
 
             function EnableMod.DoClick(Button)
                 local Mod = GetSelectedMod()
@@ -119,6 +129,42 @@ function Plugin:SetupAdminMenuCommands()
 
                 Shine.AdminMenu:RunCommand("sh_enablemods", Mod)
             end
+
+            ControlLayout:AddElement(EnableMod)
+
+            function List:OnRowSelected()
+                DisableMod:SetEnabled(true)
+                EnableMod:SetEnabled(true)
+            end
+
+            function List:OnRowDeselected()
+                DisableMod:SetEnabled(false)
+                EnableMod:SetEnabled(false)
+            end
+
+            local ButtonWidth = Units.Max(
+                HighResScaled(128),
+                Auto(DisableMod) + HighResScaled(16),
+                Auto(EnableMod) + HighResScaled(16)
+            )
+
+            DisableMod:SetAutoSize(UnitVector(ButtonWidth, Percentage(100)))
+            EnableMod:SetAutoSize(UnitVector(ButtonWidth, Percentage(100)))
+
+            local ButtonHeight = Auto(EnableMod) + HighResScaled(8)
+            ControlLayout:SetAutoSize(UnitVector(Percentage(100), ButtonHeight))
+
+            Layout:AddElement(ControlLayout)
+            Panel:SetLayout(Layout)
+            Panel:InvalidateLayout()
+
+            if not self.ModsReceived then
+                --delay populating the list to give network messages time to arrive
+                self:CreateTimer("ModsListUpdate", 0.5, 1, function()
+                    self:PopulateModList()
+                end)
+            else self:PopulateModList() end
+
         end,
 
         OnCleanup = function(Panel)
