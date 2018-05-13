@@ -36,9 +36,11 @@ function Plugin:SetupAdminMenuCommands()
             })
 
             local List = SGUI:Create("List", Panel)
-            List:SetColumns("Mod", "Config (Server)")
-            List:SetSpacing(0.7, 0.3)
-            List:SetSecondarySortColumn(2,1)
+            List:SetColumns("Mod", "Config", "Server")
+            List:SetSpacing(0.6, 0.2, 0.2)
+            List:SetSecondarySortColumn(1, 2)
+            List:SetSecondarySortColumn(2, 3)
+            List:SetSecondarySortColumn(3, 2)
             List:SetFill(true)
 
             Shine.AdminMenu.SetupListWithScaling(List)
@@ -86,9 +88,7 @@ function Plugin:SetupAdminMenuCommands()
                 --change mod's status in the list
                 for i=1,#List.Rows do --for loop is inefficient but I don't know a better way
                     if List.Rows[i]["HexID"] == Mod then
-                        local newColumnText = string.format("%s (%s)", "Disabled", isActive and "Active" or "Inactive")
-
-                        List.Rows[i]:SetColumnText(2, newColumnText)
+                        List.Rows[i]:SetColumnText(2, "Disabled")
 
                         break
                     end
@@ -119,9 +119,7 @@ function Plugin:SetupAdminMenuCommands()
                 --change mod's status in the list
                 for i=1,#List.Rows do --for loop is inefficient but I don't know a better way
                     if List.Rows[i]["HexID"] == Mod then
-                        local newColumnText = string.format("%s (%s)", "Enabled", isActive and "Active" or "Inactive")
-
-                        List.Rows[i]:SetColumnText(2, newColumnText)
+                        List.Rows[i]:SetColumnText(2, "Enabled")
 
                         break
                     end
@@ -208,10 +206,9 @@ function Plugin:PopulateModList()
     for HexID, modData in pairs(self.ModData) do
         local enabledString = modData.enabled and "Enabled" or "Disabled"
         local activeString = modData.active and "Active" or "Inactive"
-        local statusString = string.format("%s (%s)", enabledString, activeString)
 
         --add the row to the list display
-        local Row = List:AddRow(modData.displayname, statusString)
+        local Row = List:AddRow(modData.displayname, enabledString, activeString)
 
         --add extra info for GetSelectedMod
         Row["HexID"] = HexID
