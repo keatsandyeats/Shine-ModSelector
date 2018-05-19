@@ -35,9 +35,9 @@ If the file does not exist, a default one is created that looks like this:
 	}
 }  
 ````  
-Mods that are already in MapCycle.json will be imported to the config each time the plugin loads. Their display names will be their hex IDs until you edit their config entries. This display name will be shown in the Admin Menu (the hex ID will not).  
+To add a new mod to the Admin Menu, replace "exampleHex" with a hexadecimal Workshop ID (e.g. "2cbea77a"). Replace "human-readable name" with a unique, identifiable string (e.g. "Shine ModSelector"). This display name will be shown in the Admin Menu (the hex ID will not). If you prefer, you can replace "human-readable name" with the same hexadecimal Workshop ID (e.g. "2cbea77a"), and ModSelector will get the name of the mod from the Steam Workshop.  
 
-To add a new mod to the Admin Menu, replace "exampleHex" with a hexadecimal Workshop ID (e.g. "2cbea77a"). Replace "human-readable name" with a unique, identifiable string (e.g. "Shine ModSelector").  
+Mods that are already in MapCycle.json will be imported to the config each time the plugin loads, if they aren't already present. Their display names will be automatically retrieved from the Steam Workshop. You can manually edit their display names later if you wish.   
 
 Each mod entry must have the "enabled" parameter, but its boolean value is for internal use only. If you are manually adding a new mod entry, be sure to include `"enabled" = false`.  
 
@@ -47,4 +47,3 @@ If you have added at least one other mod to the config, you may safely delete th
 
 ## Future plans  
 Remove "enabled" from the config as it is not actually changeable by the user.  
-Automatically retrieve mod names from Steam Workshop.  

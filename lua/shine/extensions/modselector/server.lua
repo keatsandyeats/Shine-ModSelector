@@ -7,7 +7,7 @@
 local Shine = Shine
 local Plugin = Plugin
 
-Plugin.Version = "1.4"
+Plugin.Version = "1.5"
 
 Plugin.HasConfig = true
 Plugin.ConfigName = "ModSelector.json"
@@ -51,6 +51,9 @@ function Plugin:Initialise()
     self:SanitizeMapCycle()
 
     self:MapCycleToConfig() --add mods from the mapcycle to the internal config
+
+    self:GetWorkshopData()
+
     self:SaveConfig() --make sure we write to the config at least once
 
     self:CreateCommands()
@@ -243,10 +246,14 @@ end
 
 --[[
     keeps mods consistently named for comparability
-    input handling is not required as NS2 will gracefully ignore hex IDs that aren't mods
+    also ensures we don't send any bad requests to Steam API
 --]]
-function Plugin:SanitizeMod(modName)
-    return string.lower(tostring(modName))
+function Plugin:SanitizeMod(modID)
+    modID = string.lower(tostring(modID))
+
+    if modID == string.match(modID, '%x+') then
+        return modID
+    end
 end
 
 --[[
@@ -278,8 +285,67 @@ function Plugin:SanitizeConfig()
         modData.displayname = modData.displayname or modName
         modData.enabled = modData.enabled or false
 
-        --order is important in case mod is already clean
-        self.Config.Mods[modName] = nil --remove the dirty mod
-        self.Config.Mods[cleanModName] = modData --add the sanitized mod
+        if modName ~= cleanModName then
+            if modName ~= "exampleHex" then
+                self.Config.Mods[modName] = nil --remove the dirty mod
+            end
+
+            if cleanModName then
+                self.Config.Mods[cleanModName] = modData --add the sanitized mod
+            end
+        end
     end
+end
+
+--[[
+    Queries the Steam Workshop API for mod names whose display names in the
+    config are the same as their hex IDs.
+--]]
+function Plugin:GetWorkshopData()
+    local url = 'https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/'
+    local params = {}
+    params.itemcount = 0
+
+    for modID, modData in pairs(self.Config.Mods) do
+        if modData.displayname == modID then
+            params[string.format("publishedfileids[%s]", params.itemcount)] = tonumber(modID, 16)
+            params.itemcount = params.itemcount + 1
+        end
+    end
+
+    -- everything is named already
+    if params.itemcount == 0 then return end
+
+    Shared.SendHTTPRequest(url, "POST", params, self:WrapCallback( function(response)
+        self:ParseWorkshopData(json.decode(response))
+    end))
+
+end
+
+--[[
+    Takes a Steam API response and adds mod names to the config
+--]]
+function Plugin:ParseWorkshopData(workshopData)
+    if not workshopData then return end
+
+    local response = workshopData.response or {}
+
+    if response.result ~= 1 then return end
+    if not response.publishedfiledetails then return end
+
+    local updateConfig = false
+
+    for _, modItem in pairs(response.publishedfiledetails) do
+        if modItem.result == 1 then
+            local hexID = string.format('%x', modItem.publishedfileid)
+            self.Config.Mods[hexID].displayname = modItem.title
+
+            updateConfig = true
+        end
+    end
+
+    if updateConfig then
+        self:SaveConfig()
+    end
+
 end
